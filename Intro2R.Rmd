@@ -1,0 +1,29 @@
+output:
+author:
+title: 
+Date:
+
+
+
+```{r setup}
+
+#install.packages("simEd")
+library(simEd)
+```
+The `rep()` repicates values in x. See examples below.
+
+```{r}
+rep(1:4, 3) #repeats the list (1st argument)3 times
+
+example("rep") #prints all the examples from the help documenation of ?rep
+
+seq(1,10, by = 1) #prints out a sequene of numbers by the increment given (2nd argument)
+```
+
+
+```{r}
+sample(1:6,1) #can use this to roll a single die 
+```
+
+
+Stopped video at 59:45
