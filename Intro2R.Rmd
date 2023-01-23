@@ -22,7 +22,7 @@ seq(1,10, by = 1) #prints out a sequene of numbers by the increment given (2nd a
 
 
 ```{r}
-sample(1:6,1) #can use this to roll a single die 
+sample(1:6,3) #can use this to roll a single die 
 ```
 
 
