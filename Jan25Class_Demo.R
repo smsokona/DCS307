@@ -42,4 +42,8 @@ getService <- function() {
 }
 
 
-ssq(maxArrivals = 1000, showOutput = FALSE, serviceFcn = getService())$avgWait
+ssq(maxArrivals = 1000, showOutput = FALSE, serviceFcn = getService())$avgWait 
+ssq(maxArrivals = 1000, showOutput = FALSE, serviceFcn = NA)$avgWait 
+
+
+
