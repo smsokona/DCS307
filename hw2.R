@@ -53,7 +53,7 @@ ssqexp %>%
   ggplot(aes(Jobs, Avg_Sojo_Time, color = factor(seed))) +
   geom_point(aes(shape = factor(seed))) +
   # geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Jobs", y = "Average Sojourn", title = "convergence to Steady-State") +
+  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State") +
   ylim(0,20)
 
 
@@ -98,7 +98,7 @@ ssqexp %>%
   ggplot(aes(Jobs, Avg_Sojo_Time1, color = factor(seed))) +
   geom_point(aes(shape = factor(seed))) +
   # geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Jobs", y = "Average Sojourn", title = "convergence to Steady-State: 1st Gamma Process") +
+  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 1st Gamma Process") +
   ylim(0,20)
 
 
@@ -140,7 +140,7 @@ ssqexp %>%
   ggplot(aes(Jobs, Avg_Sojo_Time2, color = factor(seed))) +
   geom_point(aes(shape = factor(seed))) +
   # geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Jobs", y = "Average Sojourn", title = "convergence to Steady-State: 2nd Gamma Process") +
+  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 2nd Gamma Process") +
   ylim(0,20)
 
 
@@ -180,6 +180,6 @@ ssqexp %>%
   ggplot(aes(Jobs, Avg_Sojo_Time3, color = factor(seed))) +
   geom_point(aes(shape = factor(seed))) +
   # geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Jobs", y = "Average Sojourn", title = "convergence to Steady-State: 3rd Gamma Process")
+  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 3rd Gamma Process")
   # + ylim(0,20)
 
