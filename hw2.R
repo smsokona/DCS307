@@ -12,8 +12,8 @@ library("tidyverse")
 
 
 #seed 1: 1234567
-#seed 2 :2499727
-#seed 3: 8555324
+#seed 2: 0852384
+#seed 3: 2942502
 
 jobs <- seq(0,5000, by = 100) #based on barrys plot and obs, most sojourn times reach convergence at 6000 jobs
 jobs <- jobs[2:51]
@@ -22,11 +22,11 @@ sojourn_times1 <- output1$sojournTimes #saving all my sojourn times in a vector
 avg_sojourn_times1 <- c() #creating an empty list to add to for the for loop
 
 #repeating steps above 2x, so each seed has it's on vector sojourn times
-output2 <- ssq(seed = 5551212, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE)
+output2 <- ssq(seed = 0852384, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE)
 sojourn_times2 <- output2$sojournTimes
 avg_sojourn_times2 <- c()
 
-output3 <- ssq(seed = 8675309, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE)
+output3 <- ssq(seed = 2942502, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE)
 sojourn_times3 <- output3$sojournTimes
 avg_sojourn_times3 <- c()
 
@@ -44,7 +44,7 @@ for (i in jobs) {
 Jobs <- c(jobs, jobs, jobs)
 # Jobs <- Jobs[2:181]
 Avg_Sojo_Time <- c(avg_sojourn_times1, avg_sojourn_times2, avg_sojourn_times3)
-seeds = c(1234567, 5551212, 8675309)
+seeds = c(1234567, 0852384, 2942502)
 seed = rep(seeds, each = 50)
 
 ssqexp <- data.frame(Jobs, Avg_Sojo_Time, seed) 
@@ -71,11 +71,11 @@ sojourn_timesg1 <- outputg1$sojournTimes #saving all my sojourn times in a vecto
 avg_sojourn_timesg1 <- c() #creating an empty list to add to for the for loop
 
 #repeating steps above 2x, so each seed has it's on vector sojurn times
-outputg2 <- ssq(seed = 5551212, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE,  serviceFcn = getSvc1)
+outputg2 <- ssq(seed = 0852384, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE,  serviceFcn = getSvc1)
 sojourn_timesg2 <- outputg2$sojournTimes
 avg_sojourn_timesg2 <- c()
 
-outputg3 <- ssq(seed = 8675309, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE,  serviceFcn = getSvc1)
+outputg3 <- ssq(seed = 2942502, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE,  serviceFcn = getSvc1)
 sojourn_timesg3 <- outputg3$sojournTimes
 avg_sojourn_timesg3 <- c()
 
@@ -92,13 +92,13 @@ for (i in jobs) {
 
 Avg_Sojo_Time1 <- c(avg_sojourn_timesg1, avg_sojourn_timesg2, avg_sojourn_timesg3)
 
-ssqexp <- data.frame(Jobs, Avg_Sojo_Time1, seed) 
+ssqexp1 <- data.frame(Jobs, Avg_Sojo_Time1, seed) 
 
-ssqexp %>%
+ssqexp1 %>%
   ggplot(aes(Jobs, Avg_Sojo_Time1, color = factor(seed))) +
   geom_point(aes(shape = factor(seed))) +
   # geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 1st Gamma Process") +
+  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 1st Gamma Process", color = "Intial Seed") +
   ylim(0,20)
 
 
@@ -112,11 +112,11 @@ sojourn_timesgg1 <- outputgg1$sojournTimes #saving all my sojourn times in a vec
 avg_sojourn_timesgg1 <- c() #creating an empty list to add to for the for loop
 
 #repeating steps above 2x, so each seed has it's on vector sojurn times
-outputgg2 <- ssq(seed = 5551212, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc2)
+outputgg2 <- ssq(seed = 0852384, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc2)
 sojourn_timesgg2 <- outputgg2$sojournTimes
 avg_sojourn_timesgg2 <- c()
 
-outputgg3 <- ssq(seed = 8555324, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc2)
+outputgg3 <- ssq(seed = 2942502, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc2)
 sojourn_timesgg3 <- outputgg3$sojournTimes
 avg_sojourn_timesgg3 <- c()
 
@@ -134,34 +134,36 @@ for (i in jobs) {
 Avg_Sojo_Time2 <- c(avg_sojourn_timesgg1, avg_sojourn_timesgg2, avg_sojourn_timesgg3)
 
 
-ssqexp <- data.frame(Jobs, Avg_Sojo_Time2, seed) 
+ssqexp2 <- data.frame(Jobs, Avg_Sojo_Time2, seed) 
 
-ssqexp %>%
+ssqexp2 %>%
   ggplot(aes(Jobs, Avg_Sojo_Time2, color = factor(seed))) +
   geom_point(aes(shape = factor(seed))) +
   # geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 2nd Gamma Process") +
+  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 2nd Gamma Process", color = "Intial Seed") +
   ylim(0,20)
 
 
-# Graph 4
+# Graph 4, look at more departures, since graph doesn't seem to converge at 5000!
 
 getSvc3 = function() { rgamma(1, shape = 1.1, scale = 0.9) }
+
+
 
 outputggg1 <- ssq(seed = 1234567, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc3)
 sojourn_timesggg1 <- outputggg1$sojournTimes #saving all my sojourn times in a vector
 avg_sojourn_timesggg1 <- c() #creating an empty list to add to for the for loop
 
 #repeating steps above 2x, so each seed has it's on vector sojurn times
-outputggg2 <- ssq(seed = 5551212, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc3)
+outputggg2 <- ssq(seed = 0852384, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc3)
 sojourn_timesggg2 <- outputggg2$sojournTimes
 avg_sojourn_timesggg2 <- c()
 
-outputggg3 <- ssq(seed = 8675309, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc3)
+outputggg3 <- ssq(seed = 2942502, maxDepartures = 5000, saveSojournTimes = TRUE, showOutput = FALSE, showProgress =  FALSE, serviceFcn = getSvc3)
 sojourn_timesggg3 <- outputggg3$sojournTimes
 avg_sojourn_timesggg3 <- c()
 
-for (i in jobs) {
+for (i in jobs1) {
   avgggg = mean(sojourn_timesggg1[1:i])
   avgggg2 = mean(sojourn_timesggg2[1:i])
   avgggg3 = mean(sojourn_timesggg3[1:i])
@@ -174,12 +176,12 @@ for (i in jobs) {
 
 Avg_Sojo_Time3 <- c(avg_sojourn_timesggg1, avg_sojourn_timesggg2, avg_sojourn_timesggg3)
 
-ssqexp <- data.frame(Jobs, Avg_Sojo_Time3, seed) 
+ssqexp3 <- data.frame(Jobs, Avg_Sojo_Time3, seed) 
 
-ssqexp %>%
+ssqexp3 %>%
   ggplot(aes(Jobs, Avg_Sojo_Time3, color = factor(seed))) +
   geom_point(aes(shape = factor(seed))) +
   # geom_smooth(method = "lm", se = FALSE) +
-  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 3rd Gamma Process")
-  # + ylim(0,20)
+  labs(x = "Jobs", y = "Average Sojourn", title = "Convergence to Steady-State: 3rd Gamma Process", color = "Intial Seed")
+
 
