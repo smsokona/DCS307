@@ -1,0 +1,14 @@
+"0",""
+"0","#install.packages(""simEd"")"
+"0","library(simEd)"
+"2","Loading required package: rstream
+"
+"2","
+Attaching package: ‘simEd’
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    sample, set.seed
+
+"
