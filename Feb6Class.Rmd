@@ -1,0 +1,55 @@
+---
+title: "Feb6 Class"
+author: "Sokona Mangane"
+date: "2023-02-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# rng
+
+g(x) = ax mod m -> x/m will be uniformly distrubitued between (0,1)
+
+# Random Variables
+
+X is a random varialbe, written simply as X. Reminder: probabilites have to be greater than 0 but bigger than 1
+
+PMF: Probability Mass Function: probability that X takes on the value x, *f(x) = Pr(X  = x)*.
+
+
+```{r pressure, echo=FALSE}
+par(mfrow = c(2,1))
+xvals <- 0:10
+plot(xvals, dgeom(xvals, prob = 0.5), type = "h") #geometric(0.5) pmf
+plot(xvals, pgeom(xvals, prob = 0.5), type = "S") #geometric(0.5) cdf
+
+```
+
+random variate: aglorithmixally generated relaization of a random variable
+
+```{r}
+igeom(0.7, 0.1) # the 2nd graph is a PMF and the 3rd was the CDF, inverse distribution happening on the fly (geometrc distribution)
+```
+
+
+stationery poisson process = rate doesnt change, exponential interarrivals 
+
+```{r}
+numJobs <- 1000
+maxT <- 50
+  
+times <- runif(numJobs, )
+times = sort(times)
+stripchart(times, pch = '|')
+iatimes = diff(times)
+hist(iatimes)
+hist(iatimes, freq = FALSE, )
+```
+
+
+
+
+
