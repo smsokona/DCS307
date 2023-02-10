@@ -48,6 +48,8 @@ curve(dunif(x, 10, 20), add = TRUE)
 3.  Confirm that the mean and standard deviation of your random variate sample are consistent with the theoretical values given above
 
 ```{r q3}
+a = 10
+b = 20
 tmean = (a + b)/2 #theoretical mean
 tsd = (b - a) / sqrt(12) #theoretical sd
 
@@ -70,18 +72,16 @@ Your function must return a vector of *n triangular (a, b, c)* random variates. 
 
 mytriang <- function(n, a, b, c){
   values = rep(0,n)
-  if(a < runif(1) & runif(1) < c) {
-    for(i in 0:n){
+  f_c <- (c-a)/(b-a)
+  for(i in 0:n){
+    u = runif(1)
+    if(0 < u && u < f_c) {
       d = (b - a)*(c - a)
-      values[i] = a + (sqrt(d * runif(1)))
-    }
-    
-  if(c < runif(1) & runif(1) < b) {
-    for (i in 0:n) {
-      d = (b - a)*(b - c)*(1 - (runif(1)))
+      values[i] = a + (sqrt(d * u))
+    } else if(f_c <= u && u < 1) {
+      d = (b - a)*(b - c)*(1 - (u))
       values[i] = b - (sqrt(d))
-      }
-  }
+    }
   }
   return(values)
 }
@@ -105,8 +105,7 @@ c = 15
 n = 10000
 
 histdata1 = mytriang(n, a, b, c)
-hist(mytriang(n, a, b, c)) #looks like a uniform distribution from -1 to 0
-segments(a,0, c, (2/(b-a)))
+hist(mytriang(n, a, b, c), freq = FALSE) 
 segments(c, (2/(b-a)), b, 0)
 
 ```
@@ -123,4 +122,5 @@ sd(histdata1) == ttriangsd
 
 ```
 
-Even though the values say FALSE, the mean is of our sample, `r mean(histdata1)`, is a few points off, but very close to the theoretical mean, `r print(ttriangmean)`. The standard deviation of our sample, `r sd(histdata1)`, is almost identical to the theoretical standard deviation of `r print(ttriangsd)`
+Even though the values say FALSE, the mean and the standard deviation of our sample, `r mean(histdata1)` and `r sd(histdata1)` respectively, are almost identical to the theoretical mean of `r ttriangmean` and theoretical standard deviation of `r ttriangsd` respectively. This means that our code and `mytriang` function are very close to the true theoretical triangular distribution.
+
