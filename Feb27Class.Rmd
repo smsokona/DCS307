@@ -1,0 +1,73 @@
+---
+title: "Feb27Class"
+author: "Sokona Mangane"
+date: '2023-02-27'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+#install.packages("simEd")
+install.packages("magick")
+library(simEd)
+library(magick)
+```
+
+
+
+ctl + shift + c = comment
+ctrl + Alt + i = r code chunk
+ctrl + shift + m = pipe operator
+
+# Evemt - Driven Simulation
+
+Recall the time-persistent statistics:
+* $n(t)$, the number of jobs in the system
+* $q(t)$, the number of jobs in the queue
+* $x(t)$, the number of jobs in service
+
+▶ State: $n(t)$ provides a complete characterization
+$n(t) = 0$ ⇐⇒ $q(t) = 0$ and $x(t) = 0$
+$n(t) > 0$ ⇐⇒ $q(t) = n(t) − 1$and $x(t) = 1$
+
+
+▶ Event types:
+* arrival: increases $n(t)$ by 1
+* completion: decreases $n(t)$ by 1
+
+
+```{r}
+ssqvis(maxArrivals = 50, seed = 8675309)
+
+```
+
+# In Class Work
+
+
+```{}
+
+initTimes <- function() {
+     arrivalTimes      <<- c(15, 47, 71, 111, 123, 152, 232, 245, 99999)
+     interarrivalTimes <<- c(arrivalTimes[1], diff(arrivalTimes))
+     serviceTimes      <<- c(43, 36, 34, 30, 38, 30, 31, 29)
+ }
+
+ getInterarr <- function() {
+     nextInterarr <- interarrivalTimes[1]
+     interarrivalTimes <<- interarrivalTimes[-1] # remove 1st element globally
+     return(nextInterarr)
+ }
+
+ getService <- function() {
+     nextService <- serviceTimes[1]
+     serviceTimes <<- serviceTimes[-1]  # remove 1st element globally
+     return(nextService)
+ }
+
+initTimes()
+output <- ssq(maxArrivals = 8, interarrivalFcn = getInterarr, serviceFcn = getService, saveAllStats = TRUE)
+
+
+
+
+```
