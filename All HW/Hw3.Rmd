@@ -1,0 +1,220 @@
+---
+title: 'HW 3: Random Number STreams'
+author: "Sokona Mangane"
+date: "2023-02-04"
+output:
+  pdf_document: default
+  html_document:
+    code_folding: hide
+---
+
+# DCS 307 - HW 3
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+```{r package setup}
+#tinytex::install_tinytex(), to knit as a PDF
+library(simEd)
+```
+
+
+
+```{r variables/df, echo=FALSE}
+
+#Load up one arrival scenario and two service time scenarios
+library(simEd)
+myArr1 <- function(){rexp(1,rate=1)}
+myArr2 <- function(){rexp(1,rate=11/10)}
+mySvc1 <- function(){rexp(1,rate=10/9)}
+
+#using first arrival rate
+output1 <- ssq(maxArrivals = 20, seed= 8675309, interarrivalFcn = myArr1, serviceFcn = mySvc1, saveAllStats = TRUE, showOutput = FALSE)
+
+#using second arrival rate, yet the same service function
+output2 <- ssq(maxArrivals = 20, seed= 8675309, interarrivalFcn = myArr2, serviceFcn = mySvc1, saveAllStats = TRUE, showOutput = FALSE)
+
+```
+
+## Question 1: What are the first ten service times from the first run?
+
+These are the first 10 service times from the second run: `r output1$serviceTimes[1:10]`
+
+## Question 2: What are the first ten service times from the second run?
+
+These are the first 10 service times from the second run: `r output2$serviceTimes[1:10]`
+
+## Question 3: For what customer, and what are the different values, where the first service time diverges between the two runs?
+
+The service time for the 5th customer is where we see different values, where for the first run, we get a service time of `r output1$serviceTimes[5]` and for the second run, we get a service time of `r output2$serviceTimes[5]`
+
+## Question 4: In the first run, how many arrivals occur after the fourth arrival, but before that fourth customer completes service?
+
+```{r}
+par(mfrow = c(2,1))
+
+indices = seq_along(output1$numInSystemT[output1$numInSystemT <= 5])
+plot(output1$numInSystemT[indices], output1$numInSystemN[indices], type = "s", xlim = c(0,5), bty = "n", las = 1)
+abline(v = 4.562, col = "red", lwd=3, lty=2)
+
+indices = seq_along(output2$numInSystemT[output2$numInSystemT <= 5])
+plot(output2$numInSystemT[indices], output2$numInSystemN[indices], type = "s", xlim = c(0,5), bty = "n", las = 1)
+abline(v = 4.2, col = "red", lwd=3, lty=2)
+
+```
+
+2 arrivals
+
+## Question 5: In the second run, how many arrivals occur after the fourth arrival, but before that fourth customer completes service?
+
+3 arrivals
+
+## Question 6: What are the arrival times (rate = 1) generated using rexp (no streams)?
+
+```{r}
+
+set.seed(8675309)
+rexp(1,rate = 1)
+rexp(1,rate = 1)
+rexp(1,rate = 1)
+```
+
+
+## What are the service times (rate = 10/9) generated using rexp (no streams)?
+
+```{r}
+set.seed(8675309)
+rexp(1,rate = 10/9)
+rexp(1,rate = 10/9)
+rexp(1,rate = 10/9)
+
+```
+
+
+
+## Now what are the arrival times (rate = 1) generated using rexp (no streams)?
+
+```{r}
+
+set.seed(8675309)
+a1 = rexp(1,rate = 1)
+s1 = rexp(1,rate = 10/9)
+a2 = rexp(1,rate = 1)
+s2 = rexp(1,rate = 10/9)
+a3 = rexp(1,rate = 1)
+s3 = rexp(1,rate = 10/9)
+
+```
+
+The arrival times generated using rexp is `r a1`, `r a2`, and `r a3`.
+
+
+## Now what are the service times (rate = 10/9) generated using rexp (no streams)?
+
+The service times generated using rexp is `r s1`, `r s2`, and `r s3`.
+
+## What are the arrival times (rate = 1) generated using vexp (with streams)?
+
+```{r}
+set.seed(8675309)
+vexp(1,rate = 1, stream = 1)
+vexp(1,rate = 1, stream = 1)
+vexp(1,rate = 1, stream = 1)
+
+```
+
+
+## What are the service times (rate = 10/9) generated using vexp (with streams)?
+
+```{r}
+set.seed(8675309)
+vexp(1,rate = 10/9, stream = 2)
+vexp(1,rate = 10/9, stream = 2)
+vexp(1,rate = 10/9, stream = 2)
+
+```
+
+## Now what are the arrival times (rate = 1) generated using vexp (with streams)?
+
+```{r}
+set.seed(8675309)
+a4 = vexp(1,rate = 1, stream = 1)
+s4 = vexp(1,rate = 10/9, stream = 2)
+a5 = vexp(1,rate = 1, stream = 1)
+s5 = vexp(1,rate = 10/9, stream = 2)
+a6 = vexp(1,rate = 1, stream = 1)
+s6 = vexp(1,rate = 10/9, stream = 2)
+
+```
+
+The arrival times generated using vexp is `r a4`, `r a5`, and `r a6`.
+
+## Now what are the service times (rate = 10/9) generated using vexp (with streams)?
+
+The arrival times generated using vexp is `r s4`, `r s5`, and `r s6`.
+
+## What is the result of the following?
+
+```{r}
+myArr1ws <- function() {vexp(1, rate = 1, stream = 1)}
+myArr2ws <- function() {vexp(1, rate = 11/10, stream = 1)}
+mySvc1ws <- function() {vexp(1, rate = 10/9, stream = 2)}
+
+
+#using first arrival rate
+output1ws <- ssq(maxArrivals = 20, seed = 8675309, interarrivalFcn = myArr1ws(), serviceFcn = mySvc1ws(), saveAllStats = TRUE, showOutput =  FALSE)
+
+#using second arrival rate, yet the same service function
+output2ws <- ssq(maxArrivals = 20, seed = 8675309, interarrivalFcn = myArr2ws(), serviceFcn = mySvc1ws(), saveAllStats = TRUE, showOutput =  FALSE)
+
+
+interarrival1 <- output1ws$interarrivalTimes
+service1 <- output1ws$serviceTimes
+
+interarrival2 <- output2ws$interarrivalTimes
+service2 <- output2ws$serviceTimes
+
+sum(output1ws$interarrivalTimes - output2ws$interarrivalTimes)
+
+```
+     
+   
+## What is the result of the following?
+
+```{r}
+
+sum(output2ws$serviceTimes - output2ws$serviceTimes)
+
+```
+
+
+# Reflection / Investigation:
+
+## What is the default RNG used by Python?  What is its period?  List your source(s).
+
+The default RNG used by Python is Mersenne - Twister, with a period of 2^(19937) - 1([Source][s2]). 
+
+## What is the default RNG used by R?  What is its period?  List your source(s).
+
+The default RNG used by R is also Mersenne - Twister, with the same period ([Source][s1]).
+
+## What additional RNGs are available in Python, and how do you set up code to use them?  List your source(s).
+
+According to this [source][s4], the Permuted Congruential Generator and the PCG-64 DXSM, Philox Counter-based RNG, SFC64 Small Fast Chaotic PRNG are avaialable in Python, you can see the numpy.random.[generator that you want to use] class to use the respective generators. 
+
+## What additional RNGs are available in R, and how do you set up code to use them?  List your source(s).
+
+According to this [source][s1], Super-Duper, Wichmann-Hill, Marsaglia-Multicarry, KnuthTAOCP-2002, Knuth-TAOCP, L’Ecuyer-CMRG, etc, are also RNG'S available to use in R and you can use `RNGkind()` to alter the algorithm. R also has utility functions that you can use to work with RNGs, using the `rngtools` package ([Source][s3]).
+
+## Given the article posted to Lyceum last class, which of the RNGs you mention in 1-4 above are presented in the article, and how does the article describe and/or rank their relative "goodness"?  Include pointers to specific passages in the article.
+
+Only the PCG-32, and Mersenne Twister RNGS are mentioned in the article. The article also classified into different types of PRNG's (LFSR-based and LCG Based PRNG's) and the those two are in two different classes. Looking at page 46, both RNG's have great 1st Level rankings for their respective type of RNG. But for the final ranking, MT19937-64 is 4th and PCG 32 is 5th, which are good but aren't the best according to their criteria. The article includes PCG-32, so I'm sure that PCG-64 (the one Pythono uses) is faster but not drastically. 
+
+
+[s1]: https://consultglp.com/wp-content/uploads/2016/12/r-techniques-in-generating-random-numbers.pdf
+[s2]: https://peps.python.org/pep-0504/
+[s3]: https://renozao.github.io/rngtools/master/index.html
+[s4]: https://numpy.org/doc/stable/reference/random/bit_generators/mt19937.html
+

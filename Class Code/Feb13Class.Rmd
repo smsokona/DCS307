@@ -1,0 +1,106 @@
+---
+title: "Feb13Class"
+author: "Sokona Mangane"
+date: '2023-02-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R Markdown Class Notes
+
+Ctrl + Alt + I = include code chunk
+Ctrl + shift + m = include pipe operator
+
+Galileo() can run two dice..?!
+
+Monter Carlo Simulation Results:
+
+
+* *More* replications doesn't guarantee a better estimate
+* Frequency probability estimates converge slowly and somewhat erratically
+* the period where ur graph is/points are moving around and erraticley is called the warmup period, which can't rlly be automated (you can't exactly where it starts or end)
+
+
+```{r cars}
+#Algorithm:
+# wins = 0
+# for ( i in 1:nrep ) {
+#   roll = sample( 1:6, 1 ) + sample( 1:6, 1 )
+#   if ( roll == 7 || roll == 11 ) {
+#     wins = wins + 1
+#     } else if ( roll != 2 && roll != 3 && roll != 12 ) {
+#       point = roll
+#       while ( TRUE ) {
+#         roll = sample( 1:6, 1 ) + sample( 1:6, 1 )
+#         if ( roll == point ) wins = wins + 1
+#         if ( roll == point || roll == 7 ) break
+#       }
+#     }
+# }
+# 
+# print( wins / nrep )
+```
+
+To get confidence intervals in R, you can use a function called t.test
+
+95% confidencce interval means that we're 95% confident that the tru unknown mean lies within those bounds. So if you run experiments 200 times, than ~190  of those experiments will be within the tru theoritcal means. 
+
+## In Class Work: Monte Carlo
+
+*1. Implement your own function for craps, but simulating unfair dice, where each die is loaded in the following way:*
+* *Each of 2, 3, 4, 5 are twice as likely as a 1.*
+* *A 6 is four times as likely as a 1.*
+
+```{r}
+
+craps<- function(nrep = 100){
+  list <- c(1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 6, 6)
+  wins = 0
+  for ( i in 1:nrep ) {
+    roll = sample( list, 1 ) + sample( list, 1 ) #function that gives us a random die that 's loaded
+    if ( roll == 7 || roll == 11 ) {
+      wins = wins + 1
+      } else if ( roll != 2 && roll != 3 && roll != 12 ) {
+        point = roll
+        while ( TRUE ) {
+          roll = sample( list, 1 ) + sample( list, 1 )
+          if ( roll == point ) wins = wins + 1
+          if ( roll == point || roll == 7 ) break
+        }
+      }
+  }
+  
+  return( wins / nrep )
+}
+
+```
+
+*2. Execute your function 100, 1000, and 10 000 times, each time storing the results into a vector.*
+
+```{r}
+
+estimates100 <- rep(0,100)
+
+estimates100 <- for (i in 1:100) {
+  estimates100[i] <- craps()
+}
+
+estimates1000 <- rep(0,1000)
+
+estimates1000 <- for (i in 1:1000) {
+  estimates1000[i] <- craps()
+}
+
+estimates10_000 <- rep(0,10000)
+
+estimates10_000 <- for (i in 1:10000) {
+  estimates10_000[i] <- craps()
+}
+
+```
+
+*3. Use your vector (of 100, then 1000, then 10 000) to provide a 95% confidence interval for the estimate of winning, e.g.: `t.test(estimates)`*
+
