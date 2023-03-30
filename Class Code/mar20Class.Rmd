@@ -1,0 +1,27 @@
+---
+title: "mar20class"
+author: "Sokona Mangane"
+date: "2023-03-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Notes for Midterm
+
+## Little's eyns equation:
+
+avg. number in system (we have this) = $\frac{\textrm{max # of customers}}{\textrm{time at end}} * $ Average sojourn (this is what we want),
+
+thus: avg. sojourn = $\frac{\textrm{time at end}}{\textrm{max # of customers}} * $ Average num in system, and
+
+sum \# in system area = $\textrm{time at end} * \textrm{avg. # in system}$
+
+Same logic applies to the average wait ($\textrm{time at end} * \textrm{avg. # in queue}$) and service time ($\textrm{time at end} * \textrm{avg. utilization}$)
+
+```{r }
+
+
+```

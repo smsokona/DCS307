@@ -1,0 +1,554 @@
+---
+title: "Midterm Problem Set"
+author: "Sokona Mangane"
+date: "2023-03-16"
+output:
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(simEd)
+library(purrr)
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Problem 1 {.tabset}
+
+## Random()
+
+```{r random}
+randomvalues = scan("C:/Users/smangane/OneDrive - bates.edu/DCS307/Coding Files/.Rproj.user/MidtermPS/random.txt")
+hist(randomvalues, freq = FALSE, main = "Histogram of random() values")
+x <- seq(0,1, by = 0.0001)
+curve(dunif(x), add = TRUE)
+
+```
+
+## Randint() 
+
+```{r}
+randomintvalues = scan("C:/Users/smangane/OneDrive - bates.edu/DCS307/Coding Files/.Rproj.user/MidtermPS/randint.txt")
+
+randomint_hist = table(randomintvalues) / length(randomintvalues)
+plot(randomint_hist, xlim = c(1,100), type = "h", xlab = "x", ylab = "f(x)", bty = "l", las = 1)
+points(1:99, dunif(1:99,100), pch = 40, col = "red")
+title("Histogram of randomint() values")
+
+```
+
+
+## Uniform()
+
+
+```{r uniform}
+uniformvalues = scan("C:/Users/smangane/OneDrive - bates.edu/DCS307/Coding Files/.Rproj.user/MidtermPS/uniform.txt")
+
+hist(uniformvalues, freq = FALSE, main = "Histogram of uniform() values")
+x <- seq(0,1, by = 0.0001)
+curve(dunif(x), add = TRUE)
+
+```
+
+
+## Exponential()
+
+
+```{r exponential}
+expvalues = scan("C:/Users/smangane/OneDrive - bates.edu/DCS307/Coding Files/.Rproj.user/MidtermPS/exponential.txt")
+
+hist(expvalues, freq = FALSE, main = "Histogram of exp() values", breaks = 100)
+x <- seq(0,1, by = 0.0001)
+curve(dexp(x, rate = 0.9), add = TRUE)
+
+
+```
+
+
+
+
+## Gamma()
+
+
+```{r gamma}
+gammavalues = scan("C:/Users/smangane/OneDrive - bates.edu/DCS307/Coding Files/.Rproj.user/MidtermPS/gamma.txt")
+
+
+hist(gammavalues, freq = FALSE, main = "Histogram of gamma() values", breaks = 100)
+x <- seq(0,4.35, by = 0.000435)
+curve(dgamma(x, shape = 0.5, rate = 0.5), add = TRUE)
+
+
+```
+
+
+# {-}
+
+# Problem 2 
+
+If code below doesn't work, see p2output file
+
+## Part a 
+
+```{python}
+
+import simulus
+import random
+from tabulate import tabulate
+from RNG import RNG, Stream
+
+class QueueStats: #writing a class 
+  time = []
+  area_system = []
+  area_queue = []
+  num_in_system = 0
+  num_in_queue = 0
+  arrivals = 0 
+  departures = 0
+  servertimes = []
+  service_times = []
+  total_time = 0
+  serviceold = 0
+  servicenew = 0
+  nodecapacity = 0
+  rejection = 0
+  def show(self):
+    print(f"For the service node capacity {self.nodecapacity}:")
+    print(f"The number in the system @ the end: {self.num_in_system}")
+    print(f"The total number of arrivals: {self.arrivals}")
+    print(f"The total number of departures: {self.departures}")
+    print(f"The average number in the system: {sum(self.area_system)/self.total_time}")
+    print(f"The average queue in the system: {sum(self.area_queue)/self.total_time}")
+    print(f"Utilization: {sum(self.servertimes)/self.total_time}")
+    print(f"The average sojourn time: {sum(self.area_system)/self.arrivals}")
+    print(f"The probability of rejection: {self.rejection/self.arrivals}")
+    print("######")
+    
+
+    
+  
+
+def getInterarrival() -> float: #the arrival process
+  return RNG.exponential(1/0.5, Stream.ARRIVAL)
+
+def getService() -> float: #the service process
+  #the number of service tasks equal to 1 + η, defined by rng.geometric
+  totaltasks = RNG.geometric(0.1, Stream.COMPLETION) + 1 
+  totalservicetime = 0.0
+  for t in range(totaltasks):
+    #the time for each of the service tasks within a service process is,(independent of e.o.) is defined by rng.uniform
+    totalservicetime += RNG.uniform(0.1, 0.2, Stream.SERVICE_TASK)
+  return totalservicetime
+
+
+#when someone completes a service
+def completionOfService(queue_stats: QueueStats, show_output: bool = False) -> None: #is a departure equal to a complete?
+  if show_output: print(f"Completion @ {sim.now}")
+  
+  #records current time (for step below)
+  queue_stats.time.append(sim.now) 
+  
+  #calculating the area of rectangles (integration) anytime there's a change (completion in this case) in the system
+  #to calculate the average num and queue in system
+  if len(queue_stats.time) > 1:
+    change = (queue_stats.time[-1] - queue_stats.time[-2]) #difference 
+    queue_stats.area_system.append(change*queue_stats.num_in_system)
+    queue_stats.area_queue.append(change*queue_stats.num_in_queue) #same calculation but for the queue
+    
+  #updating queue and max queue before we add the depature  
+  if queue_stats.num_in_system == 0:
+    queue_stats.num_in_queue = 0
+    #queue_stats.maxqueue = 0
+  elif queue_stats.num_in_system == 1:
+    #for utilization (if the server is BUSY), right before there's no one in the system, 
+    #servicenew = time when # in system goes from 1 to 0
+    queue_stats.servicenew = sim.now 
+    #servertimes = area of rectangles for when the system is idle or busy
+    queue_stats.servertimes.append(queue_stats.servicenew - queue_stats.serviceold) 
+    queue_stats.num_in_queue = queue_stats.num_in_system - 1
+    #queue_stats.maxqueue = queue_stats.nodecapacity - 1
+  else:
+    queue_stats.num_in_queue = queue_stats.num_in_system - 1
+    #queue_stats.maxqueue = queue_stats.nodecapacity - 1
+  
+  #now we actually remove someone from the system, and add them as a departure
+  queue_stats.num_in_system -= 1
+  queue_stats.departures += 1
+  
+  #if we've processed max. # of arrivals, record the total simulation time now
+  if queue_stats.arrivals == maxArrivals:
+    queue_stats.total_time = sim.now
+   
+  #if there's still more ppl in the system, schedule the next completion of service  
+  if queue_stats.num_in_system > 0:
+    service_time = getService()
+    queue_stats.service_times.append(service_time)
+    sim.sched(completionOfService, queue_stats, until = sim.now + service_time) #schedules a time of complete at t + service_time
+  else:
+    pass
+
+
+#when someone arrives
+def arrival(queue_stats: QueueStats, show_output: bool = False) -> None: #show output is a boolean that automatically evaluates to true unless we specifiy otherwise
+    if show_output: print(f"Arrival @ {sim.now}")
+      
+    #records current time (for step below)
+    queue_stats.time.append(sim.now)
+    
+    #calculating the area of rectangles (integration) anytime there's a change (arrival in this case) in the system
+    #to calculate the average num and queue in system
+    if len(queue_stats.time) > 1:
+      change = (queue_stats.time[-1] - queue_stats.time[-2])
+      queue_stats.area_system.append(change*queue_stats.num_in_system)
+      queue_stats.area_queue.append(change*queue_stats.num_in_queue) 
+    
+    #updating queue and max queue before we add the arrival   
+    if queue_stats.num_in_system == 0:
+      queue_stats.num_in_queue = 0
+      #queue_stats.maxqueue = 0
+      #for utilization, right before we add someone to system
+      #servicold = when # in system goes from 0 to 1
+      queue_stats.serviceold = sim.now 
+    else:
+      queue_stats.num_in_queue = queue_stats.num_in_system - 1 
+      #queue_stats.maxqueue = queue_stats.nodecapacity - 1 
+      
+    
+    #now we actually add someone from the system 
+    queue_stats.num_in_system += 1
+    
+    #but if we're at capacity, then remove them from the system
+    if queue_stats.num_in_system > queue_stats.nodecapacity:
+      queue_stats.departures += 1
+      queue_stats.rejection += 1
+      queue_stats.num_in_system -= 1
+    else: #if we're not, if there's someone in the system, schedule the next completion of service
+      if queue_stats.num_in_system == 1: 
+        service_time = getService()
+        queue_stats.service_times.append(service_time)
+        sim.sched(completionOfService, queue_stats, until=sim.now + service_time)
+    
+    queue_stats.arrivals += 1  
+    
+    #if we haven't reached max # of arrivals, schedule the next arrival  
+    if queue_stats.arrivals < maxArrivals: 
+      sim.sched(arrival, queue_stats, offset = getInterarrival()) #starts an arrival at the get interarrival time??? 
+
+    if queue_stats.arrivals == maxArrivals:
+      queue_stats.total_time = sim.now
+
+      
+       
+#code to print table for (a) and (b)  
+  
+results = []  
+Capacities = [1, 2, 3, 4, 5, 6]  
+for capacitiy in Capacities:
+  sim = simulus.simulator()
+  #making an object out of the class
+  queue_stats = QueueStats()
+  queue_stats.nodecapacity = capacitiy
+  sim.sched(arrival, queue_stats, until = sim.now + getInterarrival())
+  maxArrivals = 10000
+  sim.run()
+  #queue_stats.show()
+  prob_rejection = queue_stats.rejection/queue_stats.arrivals
+  avg_sojourn = (sum(queue_stats.area_system))/queue_stats.arrivals
+  results.append([capacitiy, prob_rejection, avg_sojourn])
+   
+ 
+head = ["Service Node Capacity [Uniform(0.1,0.2)]", "Est. Prob. of Rejection", "Est. Avg. Sojourn Time"]
+print(tabulate(results, headers = head, tablefmt = 'fancy_grid'))
+
+```
+
+## Part b
+
+```{python}
+
+import simulus
+import random
+from tabulate import tabulate
+from RNG import RNG, Stream
+
+class QueueStats: #writing a class 
+  time = []
+  area_system = []
+  area_queue = []
+  num_in_system = 0
+  num_in_queue = 0
+  arrivals = 0 
+  departures = 0
+  servertimes = []
+  service_times = []
+  total_time = 0
+  serviceold = 0
+  servicenew = 0
+  nodecapacity = 0
+  rejection = 0
+  def show(self):
+    print(f"For the service node capacity {self.nodecapacity}:")
+    print(f"The number in the system @ the end: {self.num_in_system}")
+    print(f"The total number of arrivals: {self.arrivals}")
+    print(f"The total number of departures: {self.departures}")
+    print(f"The average number in the system: {sum(self.area_system)/self.total_time}")
+    print(f"The average queue in the system: {sum(self.area_queue)/self.total_time}")
+    print(f"Utilization: {sum(self.servertimes)/self.total_time}")
+    print(f"The average sojourn time: {sum(self.area_system)/self.arrivals}")
+    print(f"The probability of rejection: {self.rejection/self.arrivals}")
+    print("######")
+    
+
+    
+  
+
+def getInterarrival() -> float: #the arrival process
+  return RNG.exponential(1/0.5, Stream.ARRIVAL)
+
+def getService() -> float: #the service process
+  #the number of service tasks equal to 1 + η, defined by rng.geometric
+  totaltasks = RNG.geometric(0.1, Stream.COMPLETION) + 1 
+  totalservicetime = 0.0
+  for t in range(totaltasks):
+    #the time for each of the service tasks within a service process is,(independent of e.o.) is defined by rng.uniform
+    totalservicetime += RNG.uniform(0.1, 0.3, Stream.SERVICE_TASK)
+  return totalservicetime
+
+
+#when someone completes a service
+def completionOfService(queue_stats: QueueStats, show_output: bool = False) -> None: #is a departure equal to a complete?
+  if show_output: print(f"Completion @ {sim.now}")
+  
+  #records current time (for step below)
+  queue_stats.time.append(sim.now) 
+  
+  #calculating the area of rectangles (integration) anytime there's a change (completion in this case) in the system
+  #to calculate the average num and queue in system
+  if len(queue_stats.time) > 1:
+    change = (queue_stats.time[-1] - queue_stats.time[-2]) #difference 
+    queue_stats.area_system.append(change*queue_stats.num_in_system)
+    queue_stats.area_queue.append(change*queue_stats.num_in_queue) #same calculation but for the queue
+    
+  #updating queue and max queue before we add the depature  
+  if queue_stats.num_in_system == 0:
+    queue_stats.num_in_queue = 0
+    #queue_stats.maxqueue = 0
+  elif queue_stats.num_in_system == 1:
+    #for utilization (if the server is BUSY), right before there's no one in the system, 
+    #servicenew = time when # in system goes from 1 to 0
+    queue_stats.servicenew = sim.now 
+    #servertimes = area of rectangles for when the system is idle or busy
+    queue_stats.servertimes.append(queue_stats.servicenew - queue_stats.serviceold) 
+    queue_stats.num_in_queue = queue_stats.num_in_system - 1
+    #queue_stats.maxqueue = queue_stats.nodecapacity - 1
+  else:
+    queue_stats.num_in_queue = queue_stats.num_in_system - 1
+    #queue_stats.maxqueue = queue_stats.nodecapacity - 1
+  
+  #now we actually remove someone from the system, and add them as a departure
+  queue_stats.num_in_system -= 1
+  queue_stats.departures += 1
+  
+  #if we've processed max. # of arrivals, record the total simulation time now
+  if queue_stats.arrivals == maxArrivals:
+    queue_stats.total_time = sim.now
+   
+  #if there's still more ppl in the system, schedule the next completion of service  
+  if queue_stats.num_in_system > 0:
+    service_time = getService()
+    queue_stats.service_times.append(service_time)
+    sim.sched(completionOfService, queue_stats, until = sim.now + service_time) #schedules a time of complete at t + service_time
+  else:
+    pass
+
+
+#when someone arrives
+def arrival(queue_stats: QueueStats, show_output: bool = False) -> None: #show output is a boolean that automatically evaluates to true unless we specifiy otherwise
+    if show_output: print(f"Arrival @ {sim.now}")
+      
+    #records current time (for step below)
+    queue_stats.time.append(sim.now)
+    
+    #calculating the area of rectangles (integration) anytime there's a change (arrival in this case) in the system
+    #to calculate the average num and queue in system
+    if len(queue_stats.time) > 1:
+      change = (queue_stats.time[-1] - queue_stats.time[-2])
+      queue_stats.area_system.append(change*queue_stats.num_in_system)
+      queue_stats.area_queue.append(change*queue_stats.num_in_queue) 
+    
+    #updating queue and max queue before we add the arrival   
+    if queue_stats.num_in_system == 0:
+      queue_stats.num_in_queue = 0
+      #queue_stats.maxqueue = 0
+      #for utilization, right before we add someone to system
+      #servicold = when # in system goes from 0 to 1
+      queue_stats.serviceold = sim.now 
+    else:
+      queue_stats.num_in_queue = queue_stats.num_in_system - 1 
+      #queue_stats.maxqueue = queue_stats.nodecapacity - 1 
+      
+    
+    #now we actually add someone from the system 
+    queue_stats.num_in_system += 1
+    
+    #but if we're at capacity, then remove them from the system
+    if queue_stats.num_in_system > queue_stats.nodecapacity:
+      queue_stats.departures += 1
+      queue_stats.rejection += 1
+      queue_stats.num_in_system -= 1
+    else: #if we're not, if there's someone in the system, schedule the next completion of service
+      if queue_stats.num_in_system == 1: 
+        service_time = getService()
+        queue_stats.service_times.append(service_time)
+        sim.sched(completionOfService, queue_stats, until=sim.now + service_time)
+    
+    queue_stats.arrivals += 1  
+    
+    #if we haven't reached max # of arrivals, schedule the next arrival  
+    if queue_stats.arrivals < maxArrivals: 
+      sim.sched(arrival, queue_stats, offset = getInterarrival()) #starts an arrival at the get interarrival time??? 
+
+    if queue_stats.arrivals == maxArrivals:
+      queue_stats.total_time = sim.now
+
+      
+       
+#code to print table for (a) and (b)  
+  
+results = []  
+Capacities = [1, 2, 3, 4, 5, 6]  
+for capacitiy in Capacities:
+  sim = simulus.simulator()
+  #making an object out of the class
+  queue_stats = QueueStats()
+  queue_stats.nodecapacity = capacitiy
+  sim.sched(arrival, queue_stats, until = sim.now + getInterarrival())
+  maxArrivals = 10000
+  sim.run()
+  #queue_stats.show()
+  prob_rejection = queue_stats.rejection/queue_stats.arrivals
+  avg_sojourn = (sum(queue_stats.area_system))/queue_stats.arrivals
+  results.append([capacitiy, prob_rejection, avg_sojourn])
+   
+ 
+head = ["Service Node Capacity [Uniform(0.1,0.3)]", "Est. Prob. of Rejection", "Est. Avg. Sojourn Time"]
+print(tabulate(results, headers = head, tablefmt = 'fancy_grid'))
+
+```
+
+## Part c {.tabset}
+
+If we compare the histograms, looking at the quantiles and means for both service models, the service model where the time for each of the service tasks within a service process is a *uniform*(0.1, 0.2) random variate, is a little faster since it's service times are lower. 
+
+### *Uniform*(0.1,0.2)
+
+```{r}
+
+uniform0.2 = scan("C:/Users/smangane/OneDrive - bates.edu/DCS307/Coding Files/.Rproj.user/uniform0.2st.txt")
+hist(uniform0.2, breaks = 50, main = "Histogram of service model Uniform(0.1, 0.2)")
+m.2 <- mean(uniform0.2)
+abline(v = m.2, col = "blue")
+c.2 <- quantile(uniform0.2)
+abline(v = c.2, col = "red", lty = 5)
+
+```
+
+Mean: `r m.2`
+Quantiles: `r c.2`
+
+
+### *Uniform*(0.1,0.3)
+
+```{r}
+
+uniform0.3 = scan("C:/Users/smangane/OneDrive - bates.edu/DCS307/Coding Files/.Rproj.user/uniform0.3st.txt")
+hist(uniform0.3, breaks = 50, main = "Histogram of service model Uniform(0.1, 0.3)")
+m.3 <- mean(uniform0.3)
+abline(v = m.3, col = "blue")
+c.3 <- quantile(uniform0.3)
+abline(v = c.3, col = "red", lty = 5)
+
+```
+
+Mean: `r m.3`
+Quantiles: `r c.3`
+
+## {-}
+
+## Part d
+
+As a result of the slower service rates, the probability of rejection is higher, since it takes longer to serve people and people stay in the system longer. This is also why the average sojourn time for the second service model (*uniform*(0.1,0.3)) is also higher. 
+
+## Part e
+
+At first, I was getting negative numbers for my numbers in the system and the average sojourn time, which didn't logically make sense, which is how I knew the code was wrong. However, once I started getting positives, I knew that the probability of rejection should decrease as the capacity increases, since more people would be allowed in the system. Moreover, the average sojourn time should increase as the capacity increases, because less people are getting rejected, meaning more people in the queue waiting to be served and being in the system longer. Additionally, the average number in the system is about 1 number higher than the average queue in the system (which makes sense because the number of jobs in the queue is equal to the number of jobs in the system - 1), and the utilization is just below 1. As the capacity increased, I saw these patterns for my simulations, which helped me realize that my numbers were correct.
+
+# Problem 3
+
+## Part a
+ 
+```{r montecarlo 1}
+
+scores <- c()
+counts <- c()
+
+for(i in 1:1000){
+  testquestions <- c()
+  #create a test, 12 #'s picked randomly and w/o replacement from a list of 120
+  testquestions <- append(testquestions, sample(1:120,12, replace = FALSE)) #returns a list of 12 random #'s
+  
+  #generating an answer for each question on the test
+  answers <- c()
+  for(i in 1:12){
+    if(testquestions[i] <= 90){ #first 90 is class I questions 
+      probs = c(4, 4, 4, 4, 4, 4, 3, 3, 3, 2)
+      answers <- append(answers, sample(probs,1, replace = FALSE))
+   } else{
+      probs = c(3, 2, 2, 2, 2, 1, 1, 1, 1, 0)
+      answers <- append(answers, sample(probs,1, replace = FALSE))
+    }
+  } 
+  
+  #getting score for this test  
+  score <- sum(answers)
+  
+  #add to list of scores
+  scores <- append(scores, score)
+}
+
+
+hist(as.numeric(scores), main = "Histogram when N = 1000", xlab = "Estimated Scores from 1000 Tests")
+
+
+```
+
+## Part b
+
+```{r montecarlo 2}
+#probability that you pass the test, loops thru each value in scores
+  for(score in scores){
+    if(score >= 36){ 
+      counts <- append(counts, 1)
+   }else{
+      counts <- append(counts, 0)
+    }
+  }
+
+result = (sum(counts)/1000) * 100
+```
+
+ The probability of passing this test, based on this histogram is `r result`%
+
+
+## Part c
+
+```{r montecarlo 3}
+t.test(scores)
+```
+
+Based on what's printed above, I'm 95% confident that the true score lies in between 35.62 and 36.08 and am unsure about the rest of the values. This makes sense based on the shape of our histogram (with the highest peak being around 35-36) and the probability that we get, `r result`%.
+
+
+

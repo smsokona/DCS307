@@ -1,0 +1,32 @@
+---
+title: "March 15 Class"
+author: "Sokona Mangane"
+date: "2023-03-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+"all models are wrong (not identical to the real world), only models are useful approximations" - George Box
+
+
+# Notes: Agent Based Modeling Lab
+
+open calendar.py, person.py (edit the method section, specfically, how they're going to move), room.py and then run 'python simulation.py' in the terminal
+
+(Using Python, simulus)
+
+- record when they arrive and immideatly scheule when they move (not at the entry way)
+everytime someone moves, you schedule a arrival
+
+
+
+```{python}
+list = [4, 5, 6, 7, 8, 9, 9 , 3]
+max(list)
+min(list)
+```
+
+

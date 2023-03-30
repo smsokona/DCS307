@@ -1,0 +1,166 @@
+---
+title: "Mar29"
+author: "Sokona Mangane"
+date: "2023-03-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Central Limit Thereom Recap
+
+doesn't matter the distrubitioin that you draw from, if you take means of those numbers and create a histogram of those means you see a normal distribution (the bigger the better)
+
+We don't know what the mean is in the real world (you do when you're drawing from known distributions)
+
+When you substract x from the mean and divide by the sample standard deviation, which standardizes it (think z-score)
+
+*iid* = independent, identically distributed (not related)
+
+# 95% confidence intervals
+
+95% confidence meaning = if i generate a 100 of them, then about 5 of them should not contain the true value of the mean
+
+# confidence intervals in discrete even simulation
+
+wait times are autocorrelated (not *iid*)
+standard deviation is biased bc u have autocorrelation in the data
+
+
+
+How to check for autocorrelation?
+
+`acf()` = autocorrelation function
+
+correlations are always btw 0 and 1
+
+at a lag of 0 (space btw each value), it's supposed to be 1, always autocorrelated with itself
+
+blue dotted lines = 95% confidence interval
+
+if your autocerrlation is in between the blue dotted lines (after 0 lag) then ur data isn't autocorrelated
+
+if you run `t.test()` on autocorrelated data, your 95% confidence interval isn't accurate
+
+# confidence intervals in presence of autocorrelation
+
+can do a method of batch means:
+
+(a) Make one long simulation run, deleting warmup
+(b) Partition into n batches each of batch size b
+(c) Compute a sample mean for each batch
+(d) Construct an interval estimate using means of batches
+
+code below:
+
+```{r}
+# numjobs <- 65536
+# warmup <- 1024
+# b <- 2048
+# n <- numjobs/b
+# output<- ssq(numjobs + warmup, 123457, showOutput = FALSE, saveWaitTimes = TRUE)
+# waits <- output$waitTimes[-(1:warmup)] #remove warmup
+# batchMeans <- rep(n)
+# for (j in 1:n){
+#   batch <-waits[(1:b) + (b * (j - 1))]
+#   batchMeans[j] <- mean(batch)
+# }
+# 
+# ci <- t.test(batchMeans, conf.level = 0.95)
+```
+
+
+the bigger the batch, the more confident you should be, doesn't change your mean but your eendpoints
+
+
+# Class work
+
+
+Create figures like above, but using craps instead of normal:
+
+Fig 1: 100 CIs with each CI via 9 samples from craps(10)
+Fig 2: 100 CIs with each CI via 9 samples from craps(100)
+
+For each sample, construct a 95% CI using t.test
+
+Color intervals that miss using red (true prob: 244/495)
+
+```{r cars}
+
+crapsci <- function(nreps, ylo, yhi){
+  #Create an empty plot with true theoretical value:
+  plot(NA, NA, xlim = c(1,100), ylim = c(ylo,yhi), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
+  exact <- 244/495
+  abline(h = exact)
+  for (i in 1:100) {
+    #To create a 9-point vector of craps estimates:
+    values <- sapply(1:9, function(i) { craps(nreps, showProgress=FALSE) } )
+    ci <- t.test(values, conf.level = 0.95)
+    if(ci$conf.int[1] > exact | ci$conf.int[2] < exact){
+      #Use segments to draw each CI
+      segments(i, ci$conf.int[1], i, ci$conf.int[2], col = "red")
+    } else{
+      segments(i, ci$conf.int[1], i, ci$conf.int[2])
+    }
+  }
+}
+
+crapsci(10, 0.2, 0.8)
+
+crapsci(100, 0.4, 0.6)
+
+```
+
+1. Repeat the previous batch-means experiments using sojourn times
+2. For each of b = 64, 128, 256, 512, 1024, 2048:
+  Produce a figure of 100 different 95% confidence intervals
+  Use a different initial seed for producing each CI
+  Use red for intervals that miss, black for intervals that do not
+  In the figure, indicate the batch size and number of misses
+  Theoretical ¯o for default ssq is 1/(⌫  ) = 9.0
+  (Note: each of these figures will require non-trivial execution time)
+
+```{r}
+
+ssqci <- function(ylo = 6, yhi = 12){
+  batches <- c(64, 128, 256, 512, 1024, 2048)
+  for (x in batches) {
+    #Create an empty plot with true theoretical value:
+    plot(NA, NA, xlim = c(1,100), ylim = c(ylo,yhi), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
+    exact <- 9
+    abline(h = exact)
+    seeds <- (132101:132200)
+    for (i in 1:100) {
+      numjobs <- 65536
+      warmup <- 1024
+      b <- x
+      n <- numjobs/b
+      output<- ssq(numjobs + warmup, seeds[i], showOutput = FALSE, saveSojournTimes = TRUE, showProgress = FALSE)
+      waits <- output$sojournTimes[-(1:warmup)] #remove warmup
+      batchMeans <- rep(n)
+      for (j in 1:n){
+        batch <-waits[(1:b) + (b * (j - 1))]
+        batchMeans[j] <- mean(batch)
+      }
+      ci <- t.test(batchMeans, conf.level = 0.95)
+      sum = 0
+      if(ci$conf.int[1] > exact | ci$conf.int[2] < exact){
+        #Use segments to draw each CI
+        sum = sum + 1
+        segments(i, ci$conf.int[1], i, ci$conf.int[2], col = "red")
+      } else{
+        segments(i, ci$conf.int[1], i, ci$conf.int[2])
+      }
+    }
+    plot(xlab = paste(sum, "misses", sep = " "), ylab = paste("b =", batches[1]))
+  }
+}
+
+ssqci()
+crapsci(100, 0.4, 0.6)
+
+
+```
+
