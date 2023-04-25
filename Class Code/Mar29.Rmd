@@ -96,7 +96,7 @@ crapsci <- function(nreps, ylo, yhi){
   abline(h = exact)
   for (i in 1:100) {
     #To create a 9-point vector of craps estimates:
-    values <- sapply(1:9, function(i) { craps(nreps, showProgress=FALSE) } )
+    values <- sapply(1:9, function(i) { simEd::craps(nreps, showProgress=FALSE) } )
     ci <- t.test(values, conf.level = 0.95)
     if(ci$conf.int[1] > exact | ci$conf.int[2] < exact){
       #Use segments to draw each CI
@@ -107,9 +107,9 @@ crapsci <- function(nreps, ylo, yhi){
   }
 }
 
-crapsci(10, 0.2, 0.8)
+crapsci(10, 0.3, 0.7)
 
-crapsci(100, 0.4, 0.6)
+crapsci(100, 0.4, 0.)
 
 ```
 
@@ -124,42 +124,56 @@ crapsci(100, 0.4, 0.6)
 
 ```{r}
 
-ssqci <- function(ylo = 6, yhi = 12){
-  batches <- c(64, 128, 256, 512, 1024, 2048)
-  for (x in batches) {
+#ssqci <- function(){
     #Create an empty plot with true theoretical value:
-    plot(NA, NA, xlim = c(1,100), ylim = c(ylo,yhi), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
-    exact <- 9
-    abline(h = exact)
-    seeds <- (132101:132200)
-    for (i in 1:100) {
-      numjobs <- 65536
-      warmup <- 1024
-      b <- x
-      n <- numjobs/b
-      output<- ssq(numjobs + warmup, seeds[i], showOutput = FALSE, saveSojournTimes = TRUE, showProgress = FALSE)
-      waits <- output$sojournTimes[-(1:warmup)] #remove warmup
-      batchMeans <- rep(n)
-      for (j in 1:n){
-        batch <-waits[(1:b) + (b * (j - 1))]
-        batchMeans[j] <- mean(batch)
-      }
-      ci <- t.test(batchMeans, conf.level = 0.95)
-      sum = 0
-      if(ci$conf.int[1] > exact | ci$conf.int[2] < exact){
-        #Use segments to draw each CI
-        sum = sum + 1
-        segments(i, ci$conf.int[1], i, ci$conf.int[2], col = "red")
-      } else{
-        segments(i, ci$conf.int[1], i, ci$conf.int[2])
+plot(NA, NA, xlim = c(1,100), ylim = c(6,12), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
+exact <- 9
+abline(h = exact)
+    #seeds <- (132101:132200)
+for (i in 1:5) {
+  numjobs <- 65536
+  warmup <- 1024
+  b <- 128
+  n <- numjobs/b
+  output<- simEd::ssq(numjobs + warmup, 8675309, showOutput = FALSE, saveSojournTimes = TRUE, showProgress = TRUE)
+  waits <- output$sojournTimes[-(1:warmup)] #remove warmup
+  batchMeans <- rep(n)
+  for (j in 1:n){
+    batch <- waits[(1:b) + (b * (j - 1))]
+    batchMeans[j] <- mean(batch)
+    }
+  ci <- t.test(batchMeans, conf.level = 0.95)
+  sum = 0
+  if(ci$conf.int[1] > exact | ci$conf.int[2] < exact){
+  #Use segments to draw each CI
+    sum = sum + 1
+    segments(i, ci$conf.int[1], i, ci$conf.int[2], col = "red")
+  }else{
+      segments(i, ci$conf.int[1], i, ci$conf.int[2])
       }
     }
-    plot(xlab = paste(sum, "misses", sep = " "), ylab = paste("b =", batches[1]))
+plot(xlab = paste(sum, "misses", sep = " "), ylab = paste("b = 64"))
+
+
+crapsci <- function(nreps, ylo, yhi){
+  #Create an empty plot with true theoretical value:
+  plot(NA, NA, xlim = c(1,100), ylim = c(ylo,yhi), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
+  exact <- 244/495
+  abline(h = exact)
+  for (i in 1:100) {
+    #To create a 9-point vector of craps estimates:
+    values <- sapply(1:9, function(i) { simEd::craps(nreps, showProgress=FALSE) } )
+    ci <- t.test(values, conf.level = 0.95)
+    if(ci$conf.int[1] > exact | ci$conf.int[2] < exact){
+      #Use segments to draw each CI
+      segments(i, ci$conf.int[1], i, ci$conf.int[2], col = "red")
+    } else{
+      segments(i, ci$conf.int[1], i, ci$conf.int[2])
+    }
   }
 }
-
-ssqci()
-crapsci(100, 0.4, 0.6)
+#ssqci()
+#crapsci(100, 0.4, 0.6)
 
 
 ```

@@ -1,0 +1,58 @@
+---
+title: "April5Class"
+author: "Sokona Mangane"
+date: "2023-04-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Notes
+
+```{r}
+install.packages("tylersGrill")
+
+library(simEd)
+library(tylersGrill)
+
+```
+
+```{r}
+hist(servicetimes, breaks = )
+svc <- servicetimes
+
+#let's check for independence
+acf(svc)
+
+#check for a stationary process -- using linear regression 
+plot(svc)
+
+xbar = mean(svc)
+
+#empiricalcdf
+ecdf(svc)
+
+#mapping the pdf on the cdf
+plot(ecdf(svc), pch = "")
+curve(pexp(x, rate = 1/mean(svc)), add = TRUE, col = "red", lwd = 2)
+```
+
+$x(hat) = k(hat)*\theta$, $x(hat) & s^2$ comes from our real world data $s^2 = k(hat)*\theta^2$, $\theta & \theta^2$ comes from the estimates of gamma parameters
+
+```{r}
+khat = mean(svc)^2 / var(svc)
+theta_hat = var(svc)/mean(svc)
+
+#mapping gamma on the cdf
+plot(ecdf(svc), pch = "")
+curve(pexp(x, rate = 1/mean(svc)), add = TRUE, col = "red", lwd = 2) #pdf
+curve(pgamma(x, shape = khat, scale = theta_hat), add = TRUE, col = "blue", lwd = 2) #gamma, fits way better
+
+
+ks.test(svc, "pexp", 1/mean(svc))
+
+ks.test(svc, "pgamma", khat, theta_hat) #checked his updated code on ed
+
+```
