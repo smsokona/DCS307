@@ -541,7 +541,7 @@ print(f"Number of loops driven by van                : {queue_stats.runsA}")
 print(f"Total number of riders was                   : {queue_stats.num_peopleA}")
 print(f"Total Carbon Emissions for time period (kg)  : {totalCarbonEmissions}")
 print(f"Average co2 emissions per rider (kg)         : {co2PerRider} ")
-
+print(" ")
 print("LEWISTON VAN STATS:")
 print(f"Distance traveled by van (miles)             : {queue_stats.vanMilesL}")
 print(f"Number of loops driven by van                : {queue_stats.runsL}")
@@ -562,4 +562,4 @@ for w in Waits:
   else:
     eval_strw = f"sum(queue_stats.{w})/len(queue_stats.{w})"
     computed_waitw = eval(eval_strw)
-    print(f"The average wait at {w[:-4]}                  : {computed_waitw:.3f}")
+    print(f"The average wait at {w[:-4]}: {computed_waitw:.3f}")

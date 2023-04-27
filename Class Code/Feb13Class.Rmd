@@ -11,18 +11,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # R Markdown Class Notes
 
-Ctrl + Alt + I = include code chunk
-Ctrl + shift + m = include pipe operator
+Ctrl + Alt + I = include code chunk Ctrl + shift + m = include pipe operator
 
 Galileo() can run two dice..?!
 
 Monter Carlo Simulation Results:
 
-
-* *More* replications doesn't guarantee a better estimate
-* Frequency probability estimates converge slowly and somewhat erratically
-* the period where ur graph is/points are moving around and erraticley is called the warmup period, which can't rlly be automated (you can't exactly where it starts or end)
-
+-   *More* replications doesn't guarantee a better estimate
+-   Frequency probability estimates converge slowly and somewhat erratically
+-   the period where ur graph is/points are moving around and erraticley is called the warmup period, which can't rlly be automated (you can't exactly where it starts or end)
 
 ```{r cars}
 #Algorithm:
@@ -46,13 +43,11 @@ Monter Carlo Simulation Results:
 
 To get confidence intervals in R, you can use a function called t.test
 
-95% confidencce interval means that we're 95% confident that the tru unknown mean lies within those bounds. So if you run experiments 200 times, than ~190  of those experiments will be within the tru theoritcal means. 
+95% confidencce interval means that we're 95% confident that the tru unknown mean lies within those bounds. So if you run experiments 200 times, than \~190 of those experiments will be within the tru theoritcal means.
 
 ## In Class Work: Monte Carlo
 
-*1. Implement your own function for craps, but simulating unfair dice, where each die is loaded in the following way:*
-* *Each of 2, 3, 4, 5 are twice as likely as a 1.*
-* *A 6 is four times as likely as a 1.*
+*1. Implement your own function for craps, but simulating unfair dice, where each die is loaded in the following way:* \* *Each of 2, 3, 4, 5 are twice as likely as a 1.* \* *A 6 is four times as likely as a 1.*
 
 ```{r}
 
@@ -84,23 +79,35 @@ craps<- function(nrep = 100){
 
 estimates100 <- rep(0,100)
 
-estimates100 <- for (i in 1:100) {
+for (i in 1:100) {
   estimates100[i] <- craps()
 }
 
 estimates1000 <- rep(0,1000)
 
-estimates1000 <- for (i in 1:1000) {
+for (i in 1:1000) {
   estimates1000[i] <- craps()
 }
 
 estimates10_000 <- rep(0,10000)
 
-estimates10_000 <- for (i in 1:10000) {
+for (i in 1:10000) {
   estimates10_000[i] <- craps()
 }
+
+hist(estimates100)
+abline(v = mean(estimates100), lwd = 2, col = "blue") # mean = 0.5261
+
+
+hist(estimates1000)
+abline(v = mean(estimates1000), lwd = 2, col = "blue") # mean = 0.52288
+
+
+hist(estimates10_000)
+abline(v = mean(estimates10_000), lwd = 2, col = "blue") # mean = 0.523843
+
+
 
 ```
 
 *3. Use your vector (of 100, then 1000, then 10 000) to provide a 95% confidence interval for the estimate of winning, e.g.: `t.test(estimates)`*
-

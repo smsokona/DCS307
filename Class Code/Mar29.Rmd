@@ -19,6 +19,31 @@ When you substract x from the mean and divide by the sample standard deviation, 
 
 *iid* = independent, identically distributed (not related)
 
+
+```{r}
+clt <- function(n, numSamples, sh) {
+  samples <- rep(0, numSamples)
+  for (i in 1:numSamples) {
+    xbar <- mean( rgamma(n, shape = sh) )
+    samples[i] <- xbar
+    }
+  return(samples)
+}
+
+par(mfrow = c(2,1))
+
+n <- 9
+sh <- 2.0
+sigma <- 2.0
+hist(clt(n, 10000, sh), freq = FALSE, xlim = c(.5,4.5))
+curve(dnorm(x, sh, 1/2), add = TRUE)
+
+n <- 36
+hist(clt(n, 10000, sh), freq = FALSE, xlim = c(1,3))
+curve(dnorm(x, sh, 1/4), add = TRUE)
+```
+
+
 # 95% confidence intervals
 
 95% confidence meaning = if i generate a 100 of them, then about 5 of them should not contain the true value of the mean
@@ -109,9 +134,52 @@ crapsci <- function(nreps, ylo, yhi){
 
 crapsci(10, 0.3, 0.7)
 
-crapsci(100, 0.4, 0.)
+crapsci(1000, 0.45, 0.55)
 
 ```
+
+Confidence intervals of sojourn times 
+
+```{r}
+seeds <- sample(10^6:(10^7 - 1), size = 100, replace = FALSE)
+
+
+ci_lo <- rep(NA, 100) # vector for 100 CI low endpoints
+ci_hi <- rep(NA, 100) # vector for 100 CI high endpoints
+numJobs <- 30
+warmup <- 1000
+for (i in 1:100) {
+  output <- ssq(numJobs + warmup, seeds[i], showOutput = FALSE, saveSojournTimes = TRUE)
+  sojourn <- output$sojournTimes[-(1:warmup)]
+  ci <- t.test(sojourn, conf.level = 0.95)
+  ci_lo[i] <- ci$conf.int[1]
+  ci_hi[i] <- ci$conf.int[2]
+}
+
+
+plot(NA, NA, xlim = c(1,100), ylim = c(0,45), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
+exact <- 9
+abline(h = exact)
+for (i in 1:100){
+  if(ci_lo[i] > exact | ci_hi[i] < exact){
+      segments(i, ci_lo[i], i,  ci_hi[i], col = "red")
+    }else{
+      segments(i,  ci_lo[i], i,  ci_hi[i])
+    }
+}
+
+```
+
+
+
+Testing autocorrelation
+
+```{r}
+output <- ssq(10000, 1234567, showOutput = F, saveSojournTimes = T)
+sojourns <- output$sojournTimes[-(1:1000)] # remove "warm-up"
+acf(sojourns)
+```
+
 
 1. Repeat the previous batch-means experiments using sojourn times
 2. For each of b = 64, 128, 256, 512, 1024, 2048:
@@ -124,57 +192,43 @@ crapsci(100, 0.4, 0.)
 
 ```{r}
 
-#ssqci <- function(){
-    #Create an empty plot with true theoretical value:
-plot(NA, NA, xlim = c(1,100), ylim = c(6,12), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
+seeds <- sample(10^6:(10^7 - 1), size = 50, replace = FALSE)
+ci_lo <- rep(NA, 50) # vector for 50 CI low endpoints
+ci_hi <- rep(NA, 50) # vector for 50 CI high endpoints
+
+for (j in 1:50) {
+  set.seed(seeds[j]) # Set the seed for each replication
+  numJobs <- 250
+  warmup <- 1000
+  b <- 50
+  n <- numJobs/b
+  output <- ssq(numJobs + warmup, seeds[j], showOutput = FALSE, saveSojournTimes = TRUE)
+  sojourn <- output$sojournTimes[-(1:warmup)]
+  batchMeans <- numeric(n)
+  
+  for (i in 1:n) {
+    batch <- sojourn[(1:b) + (b*(i-1))]
+    batchMeans[i] <- mean(batch)
+  }
+  
+  ci <- t.test(batchMeans, conf.level = 0.95)
+  ci_lo[j] <- ci$conf.int[1]
+  ci_hi[j] <- ci$conf.int[2]
+}
+
+min = ceiling(min(ci_lo, ci_hi))
+max = round(max(ci_lo, ci_hi))
+plot(NA, NA, xlim = c(1, 50), ylim = c(min, max), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
 exact <- 9
 abline(h = exact)
-    #seeds <- (132101:132200)
-for (i in 1:5) {
-  numjobs <- 65536
-  warmup <- 1024
-  b <- 128
-  n <- numjobs/b
-  output<- simEd::ssq(numjobs + warmup, 8675309, showOutput = FALSE, saveSojournTimes = TRUE, showProgress = TRUE)
-  waits <- output$sojournTimes[-(1:warmup)] #remove warmup
-  batchMeans <- rep(n)
-  for (j in 1:n){
-    batch <- waits[(1:b) + (b * (j - 1))]
-    batchMeans[j] <- mean(batch)
-    }
-  ci <- t.test(batchMeans, conf.level = 0.95)
-  sum = 0
-  if(ci$conf.int[1] > exact | ci$conf.int[2] < exact){
-  #Use segments to draw each CI
-    sum = sum + 1
-    segments(i, ci$conf.int[1], i, ci$conf.int[2], col = "red")
-  }else{
-      segments(i, ci$conf.int[1], i, ci$conf.int[2])
-      }
-    }
-plot(xlab = paste(sum, "misses", sep = " "), ylab = paste("b = 64"))
 
-
-crapsci <- function(nreps, ylo, yhi){
-  #Create an empty plot with true theoretical value:
-  plot(NA, NA, xlim = c(1,100), ylim = c(ylo,yhi), bty = "n", xaxt = "n", xlab = "", ylab = "", las = 1)
-  exact <- 244/495
-  abline(h = exact)
-  for (i in 1:100) {
-    #To create a 9-point vector of craps estimates:
-    values <- sapply(1:9, function(i) { simEd::craps(nreps, showProgress=FALSE) } )
-    ci <- t.test(values, conf.level = 0.95)
-    if(ci$conf.int[1] > exact | ci$conf.int[2] < exact){
-      #Use segments to draw each CI
-      segments(i, ci$conf.int[1], i, ci$conf.int[2], col = "red")
-    } else{
-      segments(i, ci$conf.int[1], i, ci$conf.int[2])
-    }
+for (i in 1:50) {
+  if (ci_lo[i] > exact | ci_hi[i] < exact) {
+    segments(i, ci_lo[i], i, ci_hi[i], col = "red")
+  } else {
+    segments(i, ci_lo[i], i, ci_hi[i])
   }
 }
-#ssqci()
-#crapsci(100, 0.4, 0.6)
-
 
 ```
 

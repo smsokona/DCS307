@@ -34,6 +34,16 @@ random variate: aglorithmixally generated relaization of a random variable
 igeom(0.7, 0.1) # the 2nd graph is a PMF and the 3rd was the CDF, inverse distribution happening on the fly (geometrc distribution)
 ```
 
+```{r}
+set.seed(8675309) # or your favorite integer > 0 
+uvals5 <- runif(n = 5)
+uvals <- runif(n = 100) # generate 5 uniform(0,1) variates 
+igamma(uvals5, shape = 2, scale = 0.5, showPDF = TRUE, plotDelay = 0.5, showECDF = TRUE) 
+#igamma(uvals, shape = 2, scale = 0.5, showPDF = TRUE, plotDelay = 0.5, showECDF = TRUE) 
+#Repeat the process also showing the empirical CDF by including showECDF = TRUE in the argument list.
+
+```
+
 
 stationery poisson process = rate doesnt change, exponential interarrivals 
 
