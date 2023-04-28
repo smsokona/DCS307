@@ -33,3 +33,4 @@ class Calendar:
             print(f"\t   {events[i].replace('dir_evt=','')}")
 
         input("Press return...")
+

@@ -61,7 +61,7 @@ class Person:
         self._loc = location
 
     def move(self, debug: bool = False) -> None:
-        ''' Method to handle a Person moving within the room.  The Person
+              ''' Method to handle a Person moving within the room.  The Person
             should use Room.getNeighborhood (which is based on the Person's
             vision) to have a valid list of currently-unoccupied locations.
             The Person should then use Room.getNeighborCount using each of
@@ -79,31 +79,35 @@ class Person:
         Parameters:
             debug: boolean indicating whther to print debugging info
         '''
-        # YOUR CODE GOES HERE
-        if self._type is Type.BUTTERFLY: #for the soc. butterfly
-          list1 = Room.getNeighborhood(self) #list of unoccupied locations
-          listNieghborCount = []
-          for i in list1:
-            listNieghborCount.append(Room.getNeighborCount) #adds each neighbor count for each location to a list
-          maxnc = max(listNieghborCount) #stores the maximum neighborhood count
-          maxi = listNieghborCount.index(maxnc) #gets the index for maxnc
-          maxloc = list1[maxi] #stores the location of the maxnc
-          Room.departCurrentLocation(self) #unoccupy the current location
-          Room.occupyNewLocation(self, maxloc.row, maxloc.col) # occupy the Room's location at the given (row,col) and automatically set's their location 
-        else: 
-          list1 = Room.getNeighborhood(self) #list of unoccupied locations
-          listNieghborCount = []
-          for i in list1:
-            listNieghborCount.append(Room.getNeighborCount()) #adds each neighbor count for each location to a list
-          minnc = min(listNieghborCount) #stores the minimum neighborhood count
-          mini = listNieghborCount.index(minnc)
-          minloc = list1[mini]
-          Room.departCurrentLocation(self)
-          Room.occupyNewLocation(self, minloc.row, minloc.col)
         
-
-        # you may want these debug prints throughout your method...
+        # YOUR CODE GOES HERE
+        list1 = Room.getNeighborhood(self)  # list of unoccupied locations
+    
+        if not list1:  # if list1 is empty, there's nowhere to move
+            if debug: print(f"\t{self} stays -- no reasonable location")
+            return
+    
+        if self._type is Type.BUTTERFLY: #for the soc. butterfly
+            listNeighborCount = []
+            for i in list1:
+                listNeighborCount.append(Room.getNeighborCount(self._loc, i)) #adds each neighbor count for each location to a list
+            maxnc = max(listNeighborCount)  # stores the maximum neighborhood count
+            maxi = listNeighborCount.index(maxnc)
+            maxloc = list1[maxi]
+            Room.departCurrentLocation(self)
+            Room.occupyNewLocation(self, maxloc.row(), maxloc.col()) # occupy the Room's location at the given (row,col) and automatically set's their location
+        else:
+            listNeighborCount = []
+            for i in list1:
+                listNeighborCount.append(Room.getNeighborCount(self._loc, i))
+            minnc = min(listNeighborCount)  # stores the minimum neighborhood count
+            mini = listNeighborCount.index(minnc)
+            minloc = list1[mini]
+            Room.departCurrentLocation(self)
+            Room.occupyNewLocation(self, minloc.row(), minloc.col())
+        
+         # you may want these debug prints throughout your method...    
         if debug: print(f"\t{self} @ ({self.row()},{self.col()}) looking to move...")
-        if debug: 
-            print(f"\t{self} moves from ({self.row()},{self.col()}) to ({row},{col})")
+        if debug: print(f"\t{self} moves from ({self.row()},{self.col()}) to ({row},{col})")
         if debug: print(f"\t{self} stays -- no reasonable location")
+

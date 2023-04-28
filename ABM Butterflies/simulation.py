@@ -28,31 +28,55 @@ def intermove() -> float:
     return random.uniform(0.5, 2.5)
 
 def arrival(debug: bool = False) -> None:
-    ''' function to handle an arrival of a Person to the Room
-    Parameters:
-        debug: if True, prints debugging information
-    '''
     global num_people
     global people
-    # new person shows up at the Room's entry location; 
-    # make sure there is no one in the entry, otherwise reject
-    if not Room.isEntryOccupied(): # checks if the entry is already occupied
+
+    if not Room.isEntryOccupied():
         p = Person(Parameters.PROP_BUTTERFLIES)
         people.append(p)
-        Room.show(sim.now, clear_screen = Parameters.CLEAR_SCREEN, delay = Parameters.PRINT_DELAY)
-        if debug: print(f"\t{p} arrives @ {sim.now:.3f}") #prints if DEBUG = TRUE
+        Room.show(sim.now, clear_screen=Parameters.CLEAR_SCREEN, delay=Parameters.PRINT_DELAY)
+        if debug: print(f"\t{p} arrives @ {sim.now:.3f}")
         if debug: print(f"\t{p} @ ({p.row()},{p.col()}) scheduled to move @ {sim.now:.3f}")
+
         # upon arrival, schedule an immediate movement for this Person
-        sim.sched(move, p, Parameters.DEBUG, until = sim.now)
+        sim.sched(move, p, Parameters.DEBUG, until=sim.now)
+
         num_people += 1
     else:
         print(f"\tNo arrival allowed -- entry is filled")
 
     # schedule the next arrival only if not at maximum Room capacity
     if num_people < Parameters.MAX_PEOPLE:
-        sim.sched(arrival, Parameters.DEBUG, offset = interarrival())
+        sim.sched(arrival, Parameters.DEBUG, offset=interarrival())
 
     if debug: Calendar.printCalendar(sim)
+
+# def arrival(debug: bool = False) -> None:
+#     ''' function to handle an arrival of a Person to the Room
+#     Parameters:
+#         debug: if True, prints debugging information
+#     '''
+#     global num_people
+#     global people
+#     # new person shows up at the Room's entry location; 
+#     # make sure there is no one in the entry, otherwise reject
+#     if not Room.isEntryOccupied(): # checks if the entry is already occupied
+#         p = Person(Parameters.PROP_BUTTERFLIES)
+#         people.append(p)
+#         Room.show(sim.now, clear_screen = Parameters.CLEAR_SCREEN, delay = Parameters.PRINT_DELAY)
+#         if debug: print(f"\t{p} arrives @ {sim.now:.3f}") #prints if DEBUG = TRUE
+#         if debug: print(f"\t{p} @ ({p.row()},{p.col()}) scheduled to move @ {sim.now:.3f}")
+#         # upon arrival, schedule an immediate movement for this Person
+#         sim.sched(move, p, Parameters.DEBUG, until = sim.now)
+#         num_people += 1
+#     else:
+#         print(f"\tNo arrival allowed -- entry is filled")
+# 
+#     # schedule the next arrival only if not at maximum Room capacity
+#     if num_people < Parameters.MAX_PEOPLE:
+#         sim.sched(arrival, Parameters.DEBUG, offset = interarrival())
+# 
+#     if debug: Calendar.printCalendar(sim)
 
 def move(p: Person, debug: bool = False) -> None:
     ''' function to handle movement of a given Person
